@@ -11,10 +11,10 @@
 - `HID\BLTP784&COL04\...` — HID-совместимое устройство, определенное поставщиком
 
 **Симптомы**: 
-- ✅ Базовое управление курсором работает (мышь перемещается)
-- ❌ **Жесты тачпада не работают** (мультитач, прокрутка, масштабирование)
-- ❌ Сенсорная панель не реагирует на жесты после сна/простоя
-- ✅ Кнопки тачпада работают (левая/правая)
+-  Базовое управление курсором работает (мышь перемещается)
+-  **Жесты тачпада не работают** (мультитач, прокрутка, масштабирование)
+-  Сенсорная панель не реагирует на жесты после сна/простоя
+-  Кнопки тачпада работают (левая/правая)
 
 ---
 
@@ -97,7 +97,7 @@ D3ColdSupported : 1    ◄── Поддержка глубокого сна D3
    - I2C-шина останавливает тактирование
    - Прерывания маскируются
 3. При касании для жеста:
-   - Устройство должно выйти из D3hot → D0
+   - Устройство должно выйти из D3hot -> D0
    - Запрос на выход отправляется через iaLPSS2i_I2C
    - Контроллер I2C не успевает восстановить питание
    - HID-дескриптор не читается
@@ -108,13 +108,13 @@ D3ColdSupported : 1    ◄── Поддержка глубокого сна D3
 **Почему курсор работает, а жесты нет**:
 ```
 - COL01 (мышь): использует простой HID-отчёт (X, Y, кнопки)
-  → Работает через mouhid.sys, не требует сложных дескрипторов
+  -> Работает через mouhid.sys, не требует сложных дескрипторов
   
 - COL02 (сенсорная панель): требует полный HID-дескриптор
-  → Содержит коллекции мультитач-контактов (TLC)
-  → Дескриптор читается при инициализации в D0
-  → После перехода D3hot дескриптор недоступен
-  → Windows не знает о возможностях жестов
+  -> Содержит коллекции мультитач-контактов (TLC)
+  -> Дескриптор читается при инициализации в D0
+  -> После перехода D3hot дескриптор недоступен
+  -> Windows не знает о возможностях жестов
 ```
 
 #### **Причина 2: D3Cold Support и таймауты**
@@ -124,13 +124,13 @@ D3ColdSupported : 1    ◄── Поддержка глубокого сна D3
 D3ColdSupported = 1 позволяет устройству уходить в D3cold:
 
 1. Система бездействует 30+ секунд
-2. ACPI отправляет _PS0 → _PS3 transition
-3. Питание I2C-шины отключается (VDD → 0V)
+2. ACPI отправляет _PS0 -> _PS3 transition
+3. Питание I2C-шины отключается (VDD -> 0V)
 4. При касании:
    - Требуется полная инициализация (power-on reset)
    - Время инициализации: 100-500ms
    - hidi2c.sys ждёт только 100ms
-   - Таймаут → устройство помечается как "не готово"
+   - Таймаут -> устройство помечается как "не готово"
    - Жесты блокируются до следующей инициализации
 ```
 
@@ -158,7 +158,7 @@ hidi2c.sys (Microsoft I2C HID Driver)
 4. При пробуждении:
    - iaLPSS2i_I2C восстанавливает I2C-шину
    - hidi2c.sys читает дескриптор СЛИШКОМ РАНО
-   - Устройство ещё не готово → дескриптор пуст
+   - Устройство ещё не готово -> дескриптор пуст
    - Жесты не активируются
 ```
 
@@ -174,7 +174,7 @@ DeviceResetNotificationEnabled = 1 должен включать сброс,
 2. Windows Touch Input Service (TouchSvc) не опрашивает
    состояние устройства периодически
 3. Единственный способ восстановления:
-   - Disable-PnpDevice → Enable-PnpDevice
+   - Disable-PnpDevice -> Enable-PnpDevice
    - ИЛИ: devcon restart ACPI\BLTP784
 ```
 
@@ -191,7 +191,7 @@ Get-PnpDevice -InstanceId "ACPI\BLTP784\3&11583659&0"
 
 **События для диагностики**:
 ```
-Event Viewer → System:
+Event Viewer -> System:
 - Источник: Microsoft-Windows-Kernel-PnP
 - Event ID: 410, 411, 412 (Power State Transition)
 
@@ -255,9 +255,9 @@ HKLM\SYSTEM\CurrentControlSet\Services\hidi2c\Parameters
 ```
 
 **Результат**:
-- ✅ Тачпад не переходит в low-power состояние
-- ✅ Жесты работают постоянно
-- ❌ Увеличенное энергопотребление (на 0.5-1 Вт)
+- Тачпад не переходит в low-power состояние
+- Жесты работают постоянно
+- Увеличенное энергопотребление (на 0.5-1 Вт)
 
 ### Решение 3: Обновление драйверов Intel Serial IO
 
@@ -270,7 +270,7 @@ driverquery /v /fo table | findstr iaLPSS
 
 2. **Загрузка драйверов**:
    - Посетите сайт производителя ноутбука
-   - Или Intel Download Center: [Intel Serial IO Driver](https://www.intel.com/content/www/us/en/download/19351/intel-serial-io-driver.html)
+   - Или Intel Download Center: Intel Serial IO Driver
 
 3. **Установка**:
 ```powershell
@@ -295,7 +295,7 @@ Get-PnpDevice -InstanceId "ACPI\BLTP784\3&11583659&0" |
 
 ### Решение 5: Настройка схемы электропитания
 
-**Панель управления → Электропитание → Настройка схемы → Изменить дополнительные параметры**:
+**Панель управления -> Электропитание -> Настройка схемы -> Изменить дополнительные параметры**:
 
 ```
 Настройки USB
@@ -507,7 +507,7 @@ Start-ScheduledTask -TaskName "Fix-BLTP784-Gestures"
 
 ### 3. Отключение EPM через групповую политику (для предприятий)
 
-**Путь**: `Computer Configuration → Administrative Templates → System → Power Management`
+**Путь**: `Computer Configuration -> Administrative Templates -> System -> Power Management`
 
 ```
 Turn off Runtime Power Management = Enabled
@@ -522,15 +522,5 @@ Allow Throttle Performance State = Disabled
 | **Ноутбук от сети** | Отключить EPM + мониторинг |
 | **Ноутбук от батареи** | Включить мониторинг (`-Monitor`) |
 | **Критичная работа** | Использовать внешнюю мышь |
-
----
-
----
-
-## Ссылки
-
-- [Microsoft: I2C HID Driver](https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/i2c-hid-driver)
-- [Microsoft: ACPI Device Power States](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/device-power-states)
-- [Microsoft: Troubleshooting I2C](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/troubleshooting-i2c-issues)
 
 ---
